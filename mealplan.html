@@ -41,7 +41,6 @@
   <footer class="bg-[var(--teal)] text-white py-6 mt-12">
     <div class="max-w-7xl mx-auto px-6 text-center">
       <p>&copy; 2025 Smart Nutrition Planner</p>
-      <p>This project is for educational purposes only.</p>
     </div>
   </footer>
 
@@ -200,3 +199,20 @@
           <p class="text-md">Calories: <strong>${Math.round(dailyCaloriesTarget)} kcal</strong> (Total from plan: ${totalGeneratedCalories} kcal)</p>
           <p class="text-sm text-gray-600">Difference: ${calorieDifference > 0 ? `+${calorieDifference}` : calorieDifference} kcal</p>
           <p class="text-md mt-2">Protein: <strong>${dailyProteinTarget} g</strong> (Total from plan: ${totalGeneratedProtein} g)</p>
+          <p class="text-sm text-gray-600">Difference: ${proteinDifference > 0 ? `+${proteinDifference}` : proteinDifference} g</p>
+        `;
+        document.getElementById("mealPlanSummary").innerHTML = summaryHTML;
+      }
+
+      document.getElementById("generateBtn").addEventListener("click", generateMealPlan);
+
+      generateMealPlan();
+    });
+    
+    document.getElementById("logoutBtn").addEventListener("click", function() {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>
