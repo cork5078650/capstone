@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Smart Nutrition Planner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[var(--cream)] text-[var(--teal)] font-sans">
+
+    <header class="bg-[var(--teal)] fixed w-full top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <h1 class="text-2xl font-bold text-white">Smart Nutrition Planner</h1>
+          <nav class="flex items-center space-x-4">
+              <a href="dashboard.html" class="text-white font-medium hover:text-[var(--sage)] transition-colors">Dashboard</a>
+              <a href="mealplan.html" class="text-white font-medium hover:text-[var(--sage)] transition-colors">Meal Plan</a>
+              <a href="recipes.html" class="text-white font-medium hover:text-[var(--sage)] transition-colors">Recipes</a>
+              <button id="logoutBtn" class="bg-[var(--peach)] px-4 py-2 rounded-lg text-white font-semibold hover:bg-opacity-90">
+                  Logout
+              </button>
+          </nav>
+        </div>
+      </header>
+
+  <div class="min-h-screen pt-28 pb-12 flex flex-col items-center">
+    
+    <div class="flex flex-col items-center mb-8">
+      <div class="w-32 h-32 rounded-full bg-[var(--sage)] flex items-center justify-center text-4xl text-[var(--teal)] mb-4 overflow-hidden" id="profilePic">
+        <span>👤</span>
+      </div>
+      <label class="cursor-pointer bg-[var(--peach)] text-white px-4 py-2 rounded-lg font-medium hover:bg-opacity-90">
+        Upload Picture
+        <input type="file" id="uploadPic" accept="image/*" class="hidden">
+      </label>
+      <h2 id="welcomeName" class="mt-4 text-2xl font-bold"></h2>
+    </div>
+
+    <div id="formContainer" class="w-full max-w-2xl bg-[var(--sage)] p-8 rounded-xl shadow-lg space-y-6">
+      <form id="profileForm">
+        <div>
+          <label class="block font-medium mb-1">Gender</label>
+          <select id="gender" class="w-full p-2 rounded-lg border bg-[var(--cream)]">
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block font-medium mb-1">Age</label>
+            <input type="number" id="age" class="w-full p-2 rounded-lg border bg-[var(--cream)]">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Height</label>
+            <div class="flex space-x-2">
+                <select id="heightUnit" class="p-2 rounded-lg border bg-[var(--cream)]">
+                    <option value="cm">cm</option>
+                    <option value="ft">ft/in</option>
+                </select>
+                <input type="number" id="height_cm" placeholder="cm" class="w-full p-2 rounded-lg border bg-[var(--cream)]">
+                <input type="number" id="height_ft" placeholder="ft" class="w-full p-2 rounded-lg border bg-[var(--cream)] hidden">
+                <input type="number" id="height_in" placeholder="in" class="w-full p-2 rounded-lg border bg-[var(--cream)] hidden">
+            </div>
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Weight (kg)</label>
+            <input type="number" id="weight" class="w-full p-2 rounded-lg border bg-[var(--cream)]">
+          </div>
+          <div>
+            <label class="block font-medium mb-1">Activity Level</label>
+            <select id="activity" class="w-full p-2 rounded-lg border bg-[var(--cream)]">
+              <option>Sedentary</option>
+              <option>Lightly Active</option>
+              <option>Moderately Active</option>
+              <option>Very Active</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Goal</label>
+          <select id="goal" class="w-full p-2 rounded-lg border bg-[var(--cream)]">
+            <option>Lose Weight</option>
+            <option>Maintain Weight</option>
+            <option>Gain Weight</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Health Issues</label>
+          <input type="text" id="health" placeholder="e.g., diabetes, hypertension, none" class="w-full p-2 rounded-lg border bg-[var(--cream)]">
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Food Preferences</label>
+          <select id="foodPref" class="w-full p-2 rounded-lg border bg-[var(--cream)]">
+            <option>Vegetarian</option>
+            <option>Non-Vegetarian</option>
+            <option>Vegan</option>
+          </select>
+        </div>
+        <div>
+          <label class="block font-medium mb-1">Foods You Dislike</label>
+          <input type="text" id="dislikes" placeholder="e.g., mushrooms, broccoli" class="w-full p-2 rounded-lg border bg-[var(--cream)]">
+        </div>
+  
+        <button type="submit" class="w-full bg-[var(--peach)] text-white py-2 rounded-lg font-semibold hover:bg-opacity-90">
+          Save Profile
+        </button>
+      </form>
+    </div>
+
+    <div id="profileCardContainer" class="hidden w-full max-w-2xl bg-[var(--sage)] p-8 rounded-xl shadow-lg space-y-6">
+      <h3 class="text-xl font-bold mb-4">Your Profile</h3>
+      <div id="profileDetails"></div>
+      <button id="editProfile" class="mt-6 w-full bg-[var(--peach)] text-white py-2 rounded-lg font-semibold hover:bg-opacity-90" onclick="showForm()">
+        Edit Profile
+      </button>
+    </div>
+  </div>
+
+  <footer class="bg-[var(--teal)] text-white py-6 mt-12">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <p>&copy; 2025 Smart Nutrition Planner</p>
+    </div>
+  </footer>
+
+  <script>
+    // Load logged in user
+    let loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (!loggedInUser) {
+      alert("Please log in first!");
+      window.location.href = "login.html";
+    }
+    document.getElementById("welcomeName").innerText = `Welcome, ${loggedInUser.name}!`;
+  
+    // Upload profile picture
+    document.getElementById("uploadPic").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          const picDiv = document.getElementById("profilePic");
+          picDiv.innerHTML = `<img src="${event.target.result}" class="w-32 h-32 rounded-full object-cover">`;
+  
+          // Save to loggedInUser
+          loggedInUser.profile = loggedInUser.profile || {};
+          loggedInUser.profile.profilePic = event.target.result;
+          localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
+  
+          // Also update users array
+          let users = JSON.parse(localStorage.getItem("users")) || [];
+          users = users.map(u => u.email === loggedInUser.email ? loggedInUser : u);
+          localStorage.setItem("users", JSON.stringify(users));
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  
+    // Restore profile picture if saved
+    if (loggedInUser.profile && loggedInUser.profile.profilePic) {
+      document.getElementById("profilePic").innerHTML = `<img src="${loggedInUser.profile.profilePic}" class="w-32 h-32 rounded-full object-cover">`;
+    }
+
+    // Function to calculate BMR and protein
+    function calculateMetrics(profile) {
+      const { gender, age, height, weight, activity, goal } = profile;
+      let bmr = 0;
+
+      // Harris-Benedict BMR Formula
+      if (gender === 'Male') {
+        bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age);
+      } else {
+        bmr = 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
+      }
+      
+      // Adjust BMR for activity level
+      const activityMultipliers = {
+        'Sedentary': 1.2,
+        'Lightly Active': 1.375,
+        'Moderately Active': 1.55,
+        'Very Active': 1.725
+      };
+      const tdee = bmr * activityMultipliers[activity];
+
+      // Adjust for goal
+      let finalCalories = tdee;
+      if (goal === 'Lose Weight') {
+        finalCalories -= 500; // Calorie deficit
+      } else if (goal === 'Gain Weight') {
+        finalCalories += 500; // Calorie surplus
+      }
+
+      // Updated protein calculation based on activity level
+      let proteinMultiplier;
+      if (activity === 'Sedentary' || activity === 'Lightly Active') {
+        proteinMultiplier = 1.2;
+      } else {
+        proteinMultiplier = 1.6;
+      }
+      const proteinGrams = weight * proteinMultiplier;
+
+      return { bmr: Math.round(finalCalories), protein: Math.round(proteinGrams) };
+    }
+  
+    // Function to show the form
+    function showForm() {
+        document.getElementById('formContainer').classList.remove('hidden');
+        document.getElementById('profileCardContainer').classList.add('hidden');
+    }
+  
+    // Function to show the profile card and hide the form
+    function renderProfile(profile) {
+      const { bmr, protein } = calculateMetrics(profile);
+      const profileDetails = document.getElementById('profileDetails');
+
+      let heightDisplay = '';
+      if (profile.heightUnit === 'ft') {
+          const totalInches = profile.height / 2.54;
+          const feet = Math.floor(totalInches / 12);
+          const inches = Math.round(totalInches % 12);
+          heightDisplay = `${feet} ft ${inches} in`;
+      } else {
+          heightDisplay = `${Math.round(profile.height)} cm`;
+      }
+
+      profileDetails.innerHTML = `
+        <p><strong>BMR (Calories):</strong> ${bmr}</p>
+        <p><strong>Protein (grams):</strong> ${protein} g</p>
+        <hr class="my-4 border-[var(--teal)]">
+        <p><strong>Gender:</strong> ${profile.gender}</p>
+        <p><strong>Age:</strong> ${profile.age}</p>
+        <p><strong>Height:</strong> ${heightDisplay}</p>
+        <p><strong>Weight:</strong> ${profile.weight} kg</p>
+        <p><strong>Activity:</strong> ${profile.activity}</p>
+        <p><strong>Goal:</strong> ${profile.goal}</p>
+        <p><strong>Health Issues:</strong> ${profile.health}</p>
+        <p><strong>Food Preference:</strong> ${profile.dietaryType}</p>
+        <p><strong>Dislikes:</strong> ${profile.dislikes}</p>
+      `;
+
+      // Hide the form and show the profile card
+      document.getElementById('formContainer').classList.add('hidden');
+      document.getElementById('profileCardContainer').classList.remove('hidden');
+    }
+
+    // Toggle height input fields based on unit selection
+    document.getElementById('heightUnit').addEventListener('change', function() {
+        const unit = this.value;
+        if (unit === 'cm') {
+            document.getElementById('height_cm').classList.remove('hidden');
+            document.getElementById('height_ft').classList.add('hidden');
+            document.getElementById('height_in').classList.add('hidden');
+        } else {
+            document.getElementById('height_cm').classList.add('hidden');
+            document.getElementById('height_ft').classList.remove('hidden');
+            document.getElementById('height_in').classList.remove('hidden');
+        }
+    });
+
+    // Save profile info
+    document.getElementById("profileForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      // Get and convert height to cm
+      let height = 0;
+      let heightUnit = document.getElementById('heightUnit').value;
+      if (heightUnit === 'cm') {
+        height = parseInt(document.getElementById('height_cm').value);
+      } else {
+        const feet = parseInt(document.getElementById('height_ft').value) || 0;
+        const inches = parseInt(document.getElementById('height_in').value) || 0;
+        height = (feet * 30.48) + (inches * 2.54);
+      }
+
+      const profile = {
+        gender: document.getElementById("gender").value,
+        age: parseInt(document.getElementById("age").value),
+        height: height,
+        heightUnit: heightUnit, // Save the selected unit
+        weight: parseInt(document.getElementById("weight").value),
+        activity: document.getElementById("activity").value,
+        goal: document.getElementById("goal").value,
+        health: document.getElementById("health").value,
+        dislikes: document.getElementById("dislikes").value,
+        dietaryType: document.getElementById("foodPref").value,
+        profilePic: loggedInUser.profile?.profilePic || ""
+      };
+      
+      // Calculate metrics and add to profile object
+      const { bmr, protein } = calculateMetrics(profile);
+      profile.bmr = bmr;
+      profile.protein = protein;
+  
+      // Update loggedInUser
+      loggedInUser.profile = profile;
+      localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
+  
+      // Update users array
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+      users = users.map(u => u.email === loggedInUser.email ? loggedInUser : u);
+      localStorage.setItem("users", JSON.stringify(users));
+  
+      renderProfile(profile);
+    });
+  
+    // Load saved profile if exists
+    if (loggedInUser.profile && loggedInUser.profile.gender) {
+      renderProfile(loggedInUser.profile);
+    } else {
+        // Show the form by default if no profile exists
+        showForm();
+    }
+  
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", function() {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>

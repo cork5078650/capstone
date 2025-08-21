@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - Smart Nutrition Planner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[var(--cream)] text-[var(--teal)] font-sans">
+
+  <!-- Header -->
+  <header class="bg-[var(--teal)] fixed w-full top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-white">Smart Nutrition Planner</h1>
+      <nav class="hidden md:flex space-x-8 font-medium">
+        <a href="index.html#home" class="text-white hover:text-[var(--sage)]">Home</a>
+        <a href="index.html#features" class="text-white hover:text-[var(--sage)]">Features</a>
+        <a href="index.html#about" class="text-white hover:text-[var(--sage)]">About</a>
+        <a href="index.html#contact" class="text-white hover:text-[var(--sage)]">Contact</a>
+        <a href="login.html" class="text-white hover:text-[var(--sage)]">Login</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Signup form -->
+  <div class="bg-[var(--cream)] min-h-screen flex items-center justify-center pt-24 pb-12">
+    <div class="w-full max-w-lg bg-[var(--sage)] p-8 rounded-xl shadow-lg">
+      <a href="index.html" class="flex justify-center mb-6">
+        <h1 class="text-3xl font-bold text-[var(--teal)]">Sign Up</h1>
+      </a>
+      <form id="signupForm">
+        <div class="mb-4">
+          <label for="name" class="block text-sm font-medium mb-1">Full Name</label>
+          <input type="text" id="name" required class="w-full px-4 py-2 border rounded-lg bg-[var(--cream)]">
+        </div>
+        <div class="mb-4">
+          <label for="email" class="block text-sm font-medium mb-1">Email</label>
+          <input type="email" id="email" required class="w-full px-4 py-2 border rounded-lg bg-[var(--cream)]">
+        </div>
+        <div class="mb-6">
+          <label for="password" class="block text-sm font-medium mb-1">Password</label>
+          <input type="password" id="password" required class="w-full px-4 py-2 border rounded-lg bg-[var(--cream)]">
+        </div>
+        <button type="submit" class="w-full bg-[var(--peach)] text-white py-2 rounded-lg font-semibold hover:bg-opacity-90">
+          Sign Up
+        </button>
+      </form>
+      <div class="mt-6 text-center text-sm">
+        <p>Already have an account? <a href="login.html" class="text-[var(--teal)] hover:underline">Log in here</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-[var(--teal)] text-white py-8">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <p>&copy; 2025 Smart Nutrition Planner</p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("signupForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      let users = JSON.parse(localStorage.getItem("users")) || [];
+
+      // Check if email already exists
+      if (users.some(u => u.email === email)) {
+        alert("This email is already registered. Please log in.");
+        return;
+      }
+
+      // Save new user
+      const newUser = { name, email, password };
+      users.push(newUser);
+      localStorage.setItem("users", JSON.stringify(users));
+
+      alert("Account created successfully! You can now log in.");
+      window.location.href = "login.html";
+    });
+  </script>
+
+</body>
+</html>

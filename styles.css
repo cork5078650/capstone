@@ -1,0 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
+
+:root {
+  /* Refined shades of your original colors */
+  --teal: #1A5243;
+  --cream: #F5F0E1;
+  --peach: #E49377;
+  --sage: #B4D9BB;
+  --beige: #F1DABF;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+}

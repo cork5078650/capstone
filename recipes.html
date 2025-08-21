@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>All Recipes - Smart Nutrition Planner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[var(--cream)] text-[var(--teal)] font-sans">
+
+    <header class="bg-[var(--teal)] fixed w-full top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <h1 class="text-2xl font-bold text-white">Smart Nutrition Planner</h1>
+          <nav class="flex items-center space-x-4">
+              <a href="dashboard.html" class="text-white font-medium hover:text-[var(--sage)] transition-colors">Dashboard</a>
+              <a href="mealplan.html" class="text-white font-medium hover:text-[var(--sage)] transition-colors">Meal Plan</a>
+              <a href="recipes.html" class="text-white font-medium hover:text-[var(--sage)] transition-colors">Recipes</a>
+              <button id="logoutBtn" class="bg-[var(--peach)] px-4 py-2 rounded-lg text-white font-semibold hover:bg-opacity-90">
+                  Logout
+              </button>
+          </nav>
+        </div>
+      </header>
+
+  <div class="min-h-screen pt-28 pb-12 flex flex-col items-center">
+    <h2 class="text-3xl font-bold mb-8 text-[var(--teal)]">Our Delicious Recipes</h2>
+    
+    <div id="recipesList" class="w-full max-w-7xl grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    </div>
+  </div>
+
+  <footer class="bg-[var(--teal)] text-white py-6 mt-12">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <p>&copy; 2025 Smart Nutrition Planner</p>
+    </div>
+  </footer>
+
+  <script src="recipes-data.js"></script>
+  <script>
+    // Function to display all recipes
+    function displayAllRecipes() {
+        const container = document.getElementById("recipesList");
+        let recipesHTML = '';
+
+        // Iterate through meal types and calorie categories
+        for (const mealType in recipeDatabase) {
+            for (const calorieCat in recipeDatabase[mealType]) {
+                const recipes = recipeDatabase[mealType][calorieCat];
+                recipes.forEach(recipe => {
+                    recipesHTML += `
+                      <div class="p-6 bg-[var(--beige)] rounded-xl shadow-lg">
+                        <img src="${recipe.image}" alt="${recipe.name}" class="rounded-lg w-full h-40 object-cover mb-4">
+                        <h4 class="text-xl font-semibold mb-2">${recipe.name}</h4>
+                        <p class="text-sm">Meal Type: <strong>${mealType}</strong></p>
+                        <p class="text-sm">Calories: ${recipe.calories} kcal</p>
+                        <p class="text-sm">Protein: ${recipe.protein} g</p>
+                        <p class="text-sm mt-2 text-gray-600">Ingredients: ${recipe.ingredients.join(', ')}</p>
+                      </div>
+                    `;
+                });
+            }
+        }
+        container.innerHTML = recipesHTML;
+    }
+
+    // Call function to display recipes when page loads
+    displayAllRecipes();
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", function() {
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "login.html";
+    });
+  </script>
+</body>
+</html>
