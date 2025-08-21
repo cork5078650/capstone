@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,6 +41,7 @@
   <footer class="bg-[var(--teal)] text-white py-6 mt-12">
     <div class="max-w-7xl mx-auto px-6 text-center">
       <p>&copy; 2025 Smart Nutrition Planner</p>
+      <p>This project is for educational purposes only.</p>
     </div>
   </footer>
 
@@ -101,9 +101,11 @@
     
     function filterRecipes(mealType, category, profile) {
         const recipes = recipeDatabase[mealType][category];
-        const dislikedIngredients = profile.dislikes.toLowerCase().split(',').map(item => item.trim()).filter(item => item !== 'none' && item !== '');
-        const foodPref = profile.foodPref.toLowerCase();
-        const healthIssues = profile.health.toLowerCase().split(',').map(item => item.trim()).filter(item => item !== 'none' && item !== '');
+        
+        // FIX: Add || '' to provide a default empty string if properties are undefined
+        const dislikedIngredients = (profile.dislikes || '').toLowerCase().split(',').map(item => item.trim()).filter(item => item !== 'none' && item !== '');
+        const foodPref = (profile.foodPref || '').toLowerCase();
+        const healthIssues = (profile.health || '').toLowerCase().split(',').map(item => item.trim()).filter(item => item !== 'none' && item !== '');
 
         return recipes.filter(recipe => {
             const recipeIngredients = recipe.ingredients.map(ing => ing.toLowerCase());
@@ -127,8 +129,6 @@
         });
     }
 
-    // THIS IS THE CHANGE
-    // Wrap the main function call in a DOMContentLoaded event listener
     document.addEventListener('DOMContentLoaded', function() {
       function generateMealPlan() {
         const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
@@ -200,21 +200,3 @@
           <p class="text-md">Calories: <strong>${Math.round(dailyCaloriesTarget)} kcal</strong> (Total from plan: ${totalGeneratedCalories} kcal)</p>
           <p class="text-sm text-gray-600">Difference: ${calorieDifference > 0 ? `+${calorieDifference}` : calorieDifference} kcal</p>
           <p class="text-md mt-2">Protein: <strong>${dailyProteinTarget} g</strong> (Total from plan: ${totalGeneratedProtein} g)</p>
-          <p class="text-sm text-gray-600">Difference: ${proteinDifference > 0 ? `+${proteinDifference}` : proteinDifference} g</p>
-        `;
-        document.getElementById("mealPlanSummary").innerHTML = summaryHTML;
-      }
-
-      document.getElementById("generateBtn").addEventListener("click", generateMealPlan);
-
-      generateMealPlan();
-    });
-    // END OF THE CHANGE
-
-    document.getElementById("logoutBtn").addEventListener("click", function() {
-      localStorage.removeItem("loggedInUser");
-      window.location.href = "login.html";
-    });
-  </script>
-</body>
-</html>
