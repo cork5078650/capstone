@@ -100,9 +100,10 @@
     
     function filterRecipes(mealType, category, profile) {
         const recipes = recipeDatabase[mealType][category];
-        const dislikedIngredients = profile.dislikes.toLowerCase().split(',').map(item => item.trim()).filter(item => item !== 'none' && item !== '');
-        const foodPref = profile.foodPref.toLowerCase();
-        const healthIssues = profile.health.toLowerCase().split(',').map(item => item.trim()).filter(item => item !== 'none' && item !== '');
+        // Fix: Added || '' to handle undefined profile properties
+        const dislikedIngredients = (profile.dislikes || '').toLowerCase().split(',').map(item => item.trim()).filter(item => item !== 'none' && item !== '');
+        const foodPref = (profile.foodPref || '').toLowerCase();
+        const healthIssues = (profile.health || '').toLowerCase().split(',').map(item => item.trim()).filter(item => item !== 'none' && item !== '');
 
         return recipes.filter(recipe => {
             const recipeIngredients = recipe.ingredients.map(ing => ing.toLowerCase());
@@ -126,84 +127,87 @@
         });
     }
 
-    function generateMealPlan() {
-      const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-      if (!loggedInUser || !loggedInUser.profile || !loggedInUser.profile.gender) {
-        document.getElementById("mealPlanContainer").innerHTML = `<p class="text-center text-red-500">Please complete your profile on the dashboard first.</p>`;
-        document.getElementById("mealPlanSummary").innerHTML = "";
-        return;
+    // Fix: Wrapped in DOMContentLoaded to ensure recipes-data.js is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      function generateMealPlan() {
+        const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+        if (!loggedInUser || !loggedInUser.profile || !loggedInUser.profile.gender) {
+          document.getElementById("mealPlanContainer").innerHTML = `<p class="text-center text-red-500">Please complete your profile on the dashboard first.</p>`;
+          document.getElementById("mealPlanSummary").innerHTML = "";
+          return;
+        }
+
+        const dailyCaloriesTarget = calculateBMR(loggedInUser.profile);
+        const dailyProteinTarget = calculateProteinTarget(loggedInUser.profile);
+        
+        const mealPlan = {
+          Breakfast: Math.round(dailyCaloriesTarget * 0.25),
+          Lunch: Math.round(dailyCaloriesTarget * 0.35),
+          Dinner: Math.round(dailyCaloriesTarget * 0.35),
+          Snack: Math.round(dailyCaloriesTarget * 0.05)
+        };
+
+        let totalGeneratedCalories = 0;
+        let totalGeneratedProtein = 0;
+        let htmlContent = '';
+        let generatedRecipes = {};
+
+        for (const meal in mealPlan) {
+            const targetCalories = mealPlan[meal];
+            const closestCategory = findClosestCalorieCategory(meal, targetCalories);
+            
+            if (closestCategory) {
+                const availableRecipes = filterRecipes(meal, closestCategory, loggedInUser.profile);
+                
+                if (availableRecipes.length > 0) {
+                    const randomRecipe = availableRecipes[Math.floor(Math.random() * availableRecipes.length)];
+                    totalGeneratedCalories += randomRecipe.calories;
+                    totalGeneratedProtein += randomRecipe.protein;
+                    generatedRecipes[meal] = randomRecipe;
+                } else {
+                    htmlContent += `<p class="bg-white p-4 rounded-lg shadow">No recipes found for ${meal} based on your preferences. Try editing your profile to broaden your options.</p>`;
+                }
+            } else {
+                htmlContent += `<p class="bg-white p-4 rounded-lg shadow">No recipes found for ${meal}.</p>`;
+            }
+        }
+
+        for (const meal in generatedRecipes) {
+            const recipe = generatedRecipes[meal];
+            const closestCategory = findClosestCalorieCategory(meal, mealPlan[meal]);
+            htmlContent += `
+                <div class="bg-white p-6 rounded-lg shadow flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
+                    <div class="md:w-1/3">
+                        <img src="${recipe.image}" alt="${recipe.name}" class="rounded-lg object-cover w-full h-40">
+                    </div>
+                    <div class="md:w-2/3">
+                        <h4 class="text-xl font-bold">${meal}: ${recipe.name}</h4>
+                        <p class="text-sm mt-2">Calories: ${recipe.calories} kcal</p>
+                        <p class="text-sm">Protein: ${recipe.protein} g</p>
+                        <p class="text-sm font-bold mt-2">Meal Target: ~${closestCategory} kcal</p>
+                    </div>
+                </div>
+            `;
+        }
+        document.getElementById("mealPlanContainer").innerHTML = htmlContent;
+
+        const calorieDifference = totalGeneratedCalories - Math.round(dailyCaloriesTarget);
+        const proteinDifference = totalGeneratedProtein - dailyProteinTarget;
+        
+        const summaryHTML = `
+          <h3 class="text-xl font-bold mb-2">Daily Nutrition Targets</h3>
+          <p class="text-md">Calories: <strong>${Math.round(dailyCaloriesTarget)} kcal</strong> (Total from plan: ${totalGeneratedCalories} kcal)</p>
+          <p class="text-sm text-gray-600">Difference: ${calorieDifference > 0 ? `+${calorieDifference}` : calorieDifference} kcal</p>
+          <p class="text-md mt-2">Protein: <strong>${dailyProteinTarget} g</strong> (Total from plan: ${totalGeneratedProtein} g)</p>
+          <p class="text-sm text-gray-600">Difference: ${proteinDifference > 0 ? `+${proteinDifference}` : proteinDifference} g</p>
+        `;
+        document.getElementById("mealPlanSummary").innerHTML = summaryHTML;
       }
 
-      const dailyCaloriesTarget = calculateBMR(loggedInUser.profile);
-      const dailyProteinTarget = calculateProteinTarget(loggedInUser.profile);
-      
-      const mealPlan = {
-        Breakfast: Math.round(dailyCaloriesTarget * 0.25),
-        Lunch: Math.round(dailyCaloriesTarget * 0.35),
-        Dinner: Math.round(dailyCaloriesTarget * 0.35),
-        Snack: Math.round(dailyCaloriesTarget * 0.05)
-      };
+      document.getElementById("generateBtn").addEventListener("click", generateMealPlan);
 
-      let totalGeneratedCalories = 0;
-      let totalGeneratedProtein = 0;
-      let htmlContent = '';
-      let generatedRecipes = {};
-
-      for (const meal in mealPlan) {
-          const targetCalories = mealPlan[meal];
-          const closestCategory = findClosestCalorieCategory(meal, targetCalories);
-          
-          if (closestCategory) {
-              const availableRecipes = filterRecipes(meal, closestCategory, loggedInUser.profile);
-              
-              if (availableRecipes.length > 0) {
-                  const randomRecipe = availableRecipes[Math.floor(Math.random() * availableRecipes.length)];
-                  totalGeneratedCalories += randomRecipe.calories;
-                  totalGeneratedProtein += randomRecipe.protein;
-                  generatedRecipes[meal] = randomRecipe;
-              } else {
-                  htmlContent += `<p class="bg-white p-4 rounded-lg shadow">No recipes found for ${meal} based on your preferences. Try editing your profile to broaden your options.</p>`;
-              }
-          } else {
-              htmlContent += `<p class="bg-white p-4 rounded-lg shadow">No recipes found for ${meal}.</p>`;
-          }
-      }
-
-      for (const meal in generatedRecipes) {
-          const recipe = generatedRecipes[meal];
-          const closestCategory = findClosestCalorieCategory(meal, mealPlan[meal]);
-          htmlContent += `
-              <div class="bg-white p-6 rounded-lg shadow flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
-                  <div class="md:w-1/3">
-                      <img src="${recipe.image}" alt="${recipe.name}" class="rounded-lg object-cover w-full h-40">
-                  </div>
-                  <div class="md:w-2/3">
-                      <h4 class="text-xl font-bold">${meal}: ${recipe.name}</h4>
-                      <p class="text-sm mt-2">Calories: ${recipe.calories} kcal</p>
-                      <p class="text-sm">Protein: ${recipe.protein} g</p>
-                      <p class="text-sm font-bold mt-2">Meal Target: ~${closestCategory} kcal</p>
-                  </div>
-              </div>
-          `;
-      }
-      document.getElementById("mealPlanContainer").innerHTML = htmlContent;
-
-      const calorieDifference = totalGeneratedCalories - Math.round(dailyCaloriesTarget);
-      const proteinDifference = totalGeneratedProtein - dailyProteinTarget;
-      
-      const summaryHTML = `
-        <h3 class="text-xl font-bold mb-2">Daily Nutrition Targets</h3>
-        <p class="text-md">Calories: <strong>${Math.round(dailyCaloriesTarget)} kcal</strong> (Total from plan: ${totalGeneratedCalories} kcal)</p>
-        <p class="text-sm text-gray-600">Difference: ${calorieDifference > 0 ? `+${calorieDifference}` : calorieDifference} kcal</p>
-        <p class="text-md mt-2">Protein: <strong>${dailyProteinTarget} g</strong> (Total from plan: ${totalGeneratedProtein} g)</p>
-        <p class="text-sm text-gray-600">Difference: ${proteinDifference > 0 ? `+${proteinDifference}` : proteinDifference} g</p>
-      `;
-      document.getElementById("mealPlanSummary").innerHTML = summaryHTML;
-    }
-
-    document.getElementById("generateBtn").addEventListener("click", generateMealPlan);
-
-    generateMealPlan();
+      generateMealPlan();
+    });
     
     document.getElementById("logoutBtn").addEventListener("click", function() {
       localStorage.removeItem("loggedInUser");
